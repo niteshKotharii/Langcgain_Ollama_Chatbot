@@ -1,6 +1,6 @@
-# Kokoro - Heart Health Chatbot ❤️  
+# Heart Health Chatbot ❤️  
 
-Kokoro is a heart health assistant developed by **Metafied**. It provides **brief, clear, and informative** responses related to heart health, offering tips on diet, exercise, and lifestyle while advising immediate medical help for serious symptoms.
+This is a heart health assistant developed by **Metafied**. It provides **brief, clear, and informative** responses related to heart health, offering tips on diet, exercise, and lifestyle while advising immediate medical help for serious symptoms.
 
 ## 🚀 Features  
 - **Concise Responses** (2-3 sentences)  
@@ -11,7 +11,7 @@ Kokoro is a heart health assistant developed by **Metafied**. It provides **brie
 ## 🛠️ Setup  
 1. Clone the repository:  
    ```bash
-   git clone https://github.com/your-username/kokoro-chatbot.git
+   git clone https://github.com/niteshKotharii/Langchain_Ollama_Chatbot.git
     ```
 2. Install dependencies:
     ```bash
