@@ -19,7 +19,7 @@ This is a heart health assistant developed by **Metafied**. It provides **brief,
     ```
 3. Run the chatbot:
     ```bash
-    python3 chatbot.py
+    python3 main.py
     ```
 
 ## 📝 Usage  
