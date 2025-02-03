@@ -3,11 +3,23 @@ import asyncio
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from googletrans import Translator
+from flask import Flask, request, jsonify
+
+# Initialize Flask app
+app = Flask(__name__)
 
 # Initialize Text-to-Speech engine
 engine = pyttsx3.init()
-engine.setProperty("rate", 170)  # Adjust speech rate
+engine.setProperty("rate", 185)  # Adjust speech rate
 engine.setProperty("volume", 1)  # Adjust volume
+
+# Get the available voices
+voices = engine.getProperty('voices')
+# Set the female voice - example with "Samantha"
+for voice in voices:
+    if "Samantha" in voice.name:
+        engine.setProperty('voice', voice.id)
+        break
 
 # Initialize Translator
 translator = Translator()
@@ -16,9 +28,11 @@ translator = Translator()
 current_language = "en"
 
 template = """
-You are Kokoro, a heart health assistant developed by Metafied. Your goal is to provide **brief, clear, and informative** responses related to heart health. 
+You are Kokoro, a friendly, emphathetic, compassionate heart health assistant developed by Metafied. 
+Your goal is to provide brief, clear, and informative responses related to heart health. 
 
 Guidelines:
+- Keep your tone Emphathetic, com
 - Keep responses short and to the point (preferably within 2-3 sentences).
 - If a user describes serious symptoms (e.g., chest pain, shortness of breath), advise **immediate medical help**.
 - Provide quick heart health tips on diet, exercise, and lifestyle.
@@ -39,49 +53,28 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
-async def translate_text(text, lang):
-    """Translate text to a given language asynchronously"""
-    translated = await asyncio.to_thread(translator.translate, text, dest=lang)
-    return translated.text
-
-async def handle_conversation():
+@app.route('/chat', methods=['POST'])
+async def chat():
     global current_language  # Make the language setting persistent
     context = ""
-    print("Welcome to Metafied's kokoro.doctor chatbot! Type 'exit' to quit.")
     
-    while True:
-        user_input = input("You: ").strip().lower()
-        
-        # Check if the user wants to change the language
-        if user_input == "translate to hindi":
-            current_language = "hi"
-            print("\nBot: Responses will now be in Hindi.\n")
-            continue
-        elif user_input == "translate to hinglish":
-            current_language = "hinglish"
-            print("\nBot: Responses will now be in Hinglish.\n")
-            continue
-        elif user_input == "translate to english":
-            current_language = "en"
-            print("\nBot: Responses will now be in English.\n")
-            continue
-        elif user_input == "exit":
-            break
-        
-        # Generate response in English first
-        result = chain.invoke({"context": context, "question": user_input})
-        
-        # Translate response if needed
-        if current_language == "hi":
-            result = await translate_text(result, "hi")  # Convert to Hindi
-        elif current_language == "hinglish":
-            hindi_translation = await translate_text(result, "hi")  # Convert to Hindi first
-            result = await translate_text(hindi_translation, "en")  # Convert to Hinglish
-        
-        print(f"\nBot ({current_language.capitalize()}): {result}\n")
-        speak(result)  # Speak the response in the selected language
+    # Get user input from the POST request
+    data = request.get_json()
+    user_input = data.get('question', '').strip().lower()
+    language = data.get('language', 'en').strip().lower()
 
-        context += f"\nUser: {user_input}\nAI: {result}"
+    # Handle language change request
+    if language in ["hi", "hinglish", "en"]:
+        current_language = language
 
-if __name__ == "__main__":
-    asyncio.run(handle_conversation())  # Properly handle async operations
+    # Generate response in English first
+    result = chain.invoke({"context": context, "question": user_input})
+
+    # Speak the response in the selected language
+    speak(result)
+
+    # Return the response in JSON format
+    return jsonify({"response": result, "language": current_language})
+
+if __name__ == '__main__':
+    app.run(debug=True)
