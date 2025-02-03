@@ -1,4 +1,5 @@
 import pyttsx3
+import asyncio
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from googletrans import Translator
