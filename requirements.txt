@@ -2,4 +2,4 @@ Flask
 langchain
 langchain-ollama
 ollama
-pyttsx3
+gtts
