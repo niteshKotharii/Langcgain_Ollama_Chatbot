@@ -2,7 +2,6 @@ from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from flask import Flask, request, jsonify, send_file
 from gtts import gTTS
-import platform
 import os
 import time
 
@@ -29,8 +28,6 @@ model = OllamaLLM(model="llama3.2")
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
-# Detect OS
-os_name = platform.system()
 
 # Directory for saving audio files
 AUDIO_DIR = "audio_files"
