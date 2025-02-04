@@ -1,7 +1,7 @@
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from flask import Flask, request, jsonify, send_file
-import pyttsx3
+from gtts import gTTS
 import platform
 import os
 import time
@@ -28,33 +28,9 @@ app = Flask(__name__)
 model = OllamaLLM(model="llama3.2")
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
- 
-engine = pyttsx3.init()
-engine.setProperty("rate", 185) 
-engine.setProperty("volume", 1)
 
 # Detect OS
 os_name = platform.system()
-
-# Get available voices
-voices = engine.getProperty('voices')
-
-# Function to set a female voice
-def set_female_voice():
-    for voice in voices:
-        if os_name == "Windows" and "Zira" in voice.name:  # Windows female voice
-            engine.setProperty("voice", voice.id)
-            return
-        elif os_name == "Darwin" and "Samantha" in voice.name:  # MacOS female voice
-            engine.setProperty("voice", voice.id)
-            return
-        elif os_name == "Linux" and "english" in voice.id:  # Linux voices don't have gender info, selecting generic
-            engine.setProperty("voice", voice.id)
-            return
-    print("No specific female voice found, using default voice.")
-
-# Apply female voice
-set_female_voice()
 
 # Directory for saving audio files
 AUDIO_DIR = "audio_files"
@@ -63,13 +39,13 @@ AUDIO_DIR = "audio_files"
 if not os.path.exists(AUDIO_DIR):
     os.makedirs(AUDIO_DIR)
 
-def generate_audio(text, filename="response.wav"):
-    """Generate an audio file from the provided text"""
+def generate_audio(text, filename="response.mp3"):
+    """Generate an audio file from the provided text using gTTS"""
     audio_path = os.path.join(AUDIO_DIR, filename)
     print(f"Saving audio file to {audio_path}")
-    engine.save_to_file(text, audio_path)
-    engine.runAndWait()
-
+    
+    tts = gTTS(text=text, lang="en")  # You can change 'en' to other languages if needed
+    tts.save(audio_path)
 
 # Global variable for context
 context = ""  
@@ -89,7 +65,7 @@ def chat():
 
     # Generate a dynamic audio file name using timestamp
     timestamp = int(time.time())
-    audio_filename = f"response_{timestamp}.wav"
+    audio_filename = f"response_{timestamp}.mp3"
     
     generate_audio(result, audio_filename)
     
@@ -104,7 +80,7 @@ def chat():
 def serve_audio(filename):
     audio_path = os.path.join(os.getcwd(), AUDIO_DIR, filename)
     if os.path.exists(audio_path):
-        return send_file(audio_path, mimetype='audio/wav')
+        return send_file(audio_path, mimetype='audio/mp3')
     return jsonify({'error': 'Audio file not found'}), 404
 
 
