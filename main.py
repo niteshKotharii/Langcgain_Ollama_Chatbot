@@ -1,7 +1,8 @@
-import pyttsx3
 from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from flask import Flask, request, jsonify, send_file
+import pyttsx3
+import platform
 import os
 import time
 
@@ -32,6 +33,28 @@ engine = pyttsx3.init()
 engine.setProperty("rate", 185) 
 engine.setProperty("volume", 1)
 
+# Detect OS
+os_name = platform.system()
+
+# Get available voices
+voices = engine.getProperty('voices')
+
+# Function to set a female voice
+def set_female_voice():
+    for voice in voices:
+        if os_name == "Windows" and "Zira" in voice.name:  # Windows female voice
+            engine.setProperty("voice", voice.id)
+            return
+        elif os_name == "Darwin" and "Samantha" in voice.name:  # MacOS female voice
+            engine.setProperty("voice", voice.id)
+            return
+        elif os_name == "Linux" and "english" in voice.id:  # Linux voices don't have gender info, selecting generic
+            engine.setProperty("voice", voice.id)
+            return
+    print("No specific female voice found, using default voice.")
+
+# Apply female voice
+set_female_voice()
 
 # Directory for saving audio files
 AUDIO_DIR = "audio_files"
@@ -45,13 +68,11 @@ def generate_audio(text, filename="response.wav"):
     audio_path = os.path.join(AUDIO_DIR, filename)
     print(f"Saving audio file to {audio_path}")
     engine.save_to_file(text, audio_path)
+    engine.runAndWait()
 
 
 # Global variable for context
 context = ""  
-
-def reset_context_if_needed():
-    global context
 
 @app.route('/chat', methods=['GET'])  
 def chat():
@@ -70,23 +91,22 @@ def chat():
     timestamp = int(time.time())
     audio_filename = f"response_{timestamp}.wav"
     
-    # Generate the audio file
     generate_audio(result, audio_filename)
     
     # Return both the audio file URL and text response as a JSON
     return jsonify({
         'text': result,
-        'audio': request.host_url + AUDIO_DIR + "/" + audio_filename  # Provide the audio file URL
+        'audio': request.host_url + AUDIO_DIR + "/" + audio_filename 
     })
 
 # Route to serve the audio file
 @app.route('/audio_files/<filename>', methods=['GET'])
 def serve_audio(filename):
     audio_path = os.path.join(os.getcwd(), AUDIO_DIR, filename)
-    print(f"Looking for file at: {audio_path}")  # Log to check if file exists
     if os.path.exists(audio_path):
         return send_file(audio_path, mimetype='audio/wav')
     return jsonify({'error': 'Audio file not found'}), 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)
