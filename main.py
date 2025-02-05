@@ -2,7 +2,8 @@ from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from flask import Flask, request, jsonify, send_file
 from gtts import gTTS
-from deep_translator import GoogleTranslator 
+from deep_translator import GoogleTranslator
+from langdetect import detect
 import os
 
 # Template for the model's response
@@ -41,6 +42,9 @@ def generate_audio(text, filename="response.mp3", lang="en"):
 # Initialize the context variable to store the conversation history
 context = ""  
 
+# List of supported languages
+supported_languages = ["en", "hi", "fr", "es", "de", "it", "pt", "zh", "ja", 
+                        "ko", "ru", "ar", "bn", "gu", "mr", "ta", "te", "ur"]
 
 # Route to handle the chat interaction
 @app.route('/chat', methods=['GET'])  
@@ -51,16 +55,20 @@ def chat():
     data = request.get_json()
     user_input = data.get('question', '').strip().lower()
     language = data.get('language', 'en') 
-    
+
+    # Detect the language of the input text
+    detected_lang = detect(user_input)
+
+    # Translate the input to English if it's not in English
+    if detected_lang in supported_languages and detected_lang != "en":
+        user_input = GoogleTranslator(source=detected_lang, target="en").translate(user_input)
+
+
     # Invoke the model to generate a response based on the user input and context
     result = chain.invoke({"context": context, "question": user_input})
 
     # Update the context with the latest conversation history
     context = f"{context}\nUser: {user_input}\nAI: {result}"
-
-    # List of supported languages
-    supported_languages = ["en", "hi", "fr", "es", "de", "it", "pt", "zh", "ja", 
-                        "ko", "ru", "ar", "bn", "gu", "mr", "ta", "te", "ur"]
 
     # Translate the response to the specified language if it's not English
     if language in supported_languages and language != "en":
