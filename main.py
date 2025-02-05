@@ -2,14 +2,13 @@ from langchain_ollama import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
 from flask import Flask, request, jsonify, send_file
 from gtts import gTTS
-from googletrans import Translator  
+from deep_translator import GoogleTranslator 
 import os
-import asyncio
-
 
 # Template for the model's response
 template = """
-You are Kokoro, a friendly and empathetic heart health assistant developed by Metafied. Your role is to provide actionable and accurate information about heart health, including symptoms, medical advice, dietary recommendations, and lifestyle changes. 
+You are Kokoro, a friendly and empathetic heart health assistant developed by Metafied. 
+Your role is to provide actionable and accurate information about heart health, including symptoms, medical advice, dietary recommendations, and lifestyle changes. 
 
 Guidelines:
 - Always maintain an empathetic and professional tone, offering support and reassurance when needed.
@@ -23,56 +22,61 @@ User: {question}
 AI (Concise Response):
 """
 
-# Initialize the model and Flask app
+# Initialize the Flask app
 app = Flask(__name__)
 
+# Initialize the model and the chat prompt template
 model = OllamaLLM(model="llama3.2")
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
-# Translator for translation
-translator = Translator()
 
-
+# Function to generate audio from text using Google Text-to-Speech (gTTS)
 def generate_audio(text, filename="response.mp3", lang="en"):
     audio_path = "./" + filename 
-    
     tts = gTTS(text=text, lang=lang)  
     tts.save(audio_path)
 
 
-# Global variable for context
+# Initialize the context variable to store the conversation history
 context = ""  
 
+
+# Route to handle the chat interaction
 @app.route('/chat', methods=['GET'])  
-async def chat():
+def chat():
     global context
 
-    # Get user input from the request
+    # Get the user input and language preference from the request
     data = request.get_json()
     user_input = data.get('question', '').strip().lower()
-    speaker = data.get('speaker', True)
-    language = data.get('language', 'en')  # Accept the 'language' parameter
-
+    language = data.get('language', 'en') 
+    
+    # Invoke the model to generate a response based on the user input and context
     result = chain.invoke({"context": context, "question": user_input})
 
+    # Update the context with the latest conversation history
     context = f"{context}\nUser: {user_input}\nAI: {result}"
 
-    # If the requested language is Hindi, translate the result synchronously
-    if language == 'hi':
-        result = translator.translate(result, src='en', dest='hi').text  # Synchronous translation
+    # List of supported languages
+    supported_languages = ["en", "hi", "fr", "es", "de", "it", "pt", "zh", "ja", 
+                        "ko", "ru", "ar", "bn", "gu", "mr", "ta", "te", "ur"]
+
+    # Translate the response to the specified language if it's not English
+    if language in supported_languages and language != "en":
+        result = GoogleTranslator(source='en', target=language).translate(result)
 
 
-
-    # Generate audio from the response in the specified language
+    # Generate an audio file from the response
     audio_filename = "response.mp3"  
     generate_audio(result, filename=audio_filename, lang=language)
 
-    # Return both the audio file URL and text response as a JSON
+    # Return the response text and the URL to the audio file
     return jsonify({
         'text': result,
         'audio': request.host_url + audio_filename  
     })
+
 
 # Route to serve the audio file
 @app.route('/<filename>', methods=['GET'])
@@ -82,5 +86,7 @@ def serve_audio(filename):
         return send_file(audio_path, mimetype='audio/mp3')
     return jsonify({'error': 'Audio file not found'}), 404
 
+
+# Main block to run the Flask app
 if __name__ == '__main__':
     app.run(debug=True)
