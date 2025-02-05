@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify, send_file
 from gtts import gTTS
 from deep_translator import GoogleTranslator
 from langdetect import detect
+from flask_cors import CORS
 import os
 
 # Template for the model's response
@@ -46,6 +47,9 @@ context = ""
 supported_languages = ["en", "hi", "fr", "es", "de", "it", "pt", "zh", "ja", 
                         "ko", "ru", "ar", "bn", "gu", "mr", "ta", "te", "ur"]
 
+
+# Enable CORS for the Flask app
+CORS(app)
 # Route to handle the chat interaction
 @app.route('/chat', methods=['GET'])  
 def chat():
@@ -54,15 +58,14 @@ def chat():
     # Get the user input and language preference from the request
     data = request.get_json()
     user_input = data.get('question', '').strip().lower()
-    language = data.get('language', 'en') 
 
-    # Detect the language of the input text
+    # Detect the language of the user input
     detected_lang = detect(user_input)
+    language = data.get('language', detected_lang) 
 
     # Translate the input to English if it's not in English
     if detected_lang in supported_languages and detected_lang != "en":
         user_input = GoogleTranslator(source=detected_lang, target="en").translate(user_input)
-
 
     # Invoke the model to generate a response based on the user input and context
     result = chain.invoke({"context": context, "question": user_input})
