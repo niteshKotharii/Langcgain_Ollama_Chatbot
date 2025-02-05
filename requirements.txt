@@ -3,3 +3,4 @@ langchain
 langchain-ollama
 ollama
 gtts
+deep_translator
