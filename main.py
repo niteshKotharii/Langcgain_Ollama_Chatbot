@@ -7,7 +7,7 @@ from flask_cors import CORS
 
 # Template for the model's response
 template = """
-You are Kokoro, a friendly and empathetic heart health assistant developed by Metafied. 
+You are a friendly and empathetic heart health assistant developed by Metafied. 
 Your role is to provide actionable and accurate information about heart health, including symptoms, medical advice, dietary recommendations, and lifestyle changes. 
 
 Guidelines:
