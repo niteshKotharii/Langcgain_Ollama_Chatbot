@@ -58,14 +58,11 @@ def chat():
     # Get the user input and language preference from the request
     data = request.get_json()
     user_input = data.get('question', '').strip().lower()
-
-    # Detect the language of the user input
-    detected_lang = detect(user_input)
-    language = data.get('language', detected_lang) 
+    language = data.get('language', 'en')
 
     # Translate the input to English if it's not in English
-    if detected_lang in supported_languages and detected_lang != "en":
-        user_input = GoogleTranslator(source=detected_lang, target="en").translate(user_input)
+    if language != "en":
+        user_input = GoogleTranslator(source=language, target="en").translate(user_input)
 
     # Invoke the model to generate a response based on the user input and context
     result = chain.invoke({"context": context, "question": user_input})
@@ -74,7 +71,7 @@ def chat():
     context = f"{context}\nUser: {user_input}\nAI: {result}"
 
     # Translate the response to the specified language if it's not English
-    if language in supported_languages and language != "en":
+    if language != "en":
         result = GoogleTranslator(source='en', target=language).translate(result)
 
 
