@@ -3,6 +3,4 @@ Flask-cors
 langchain
 langchain-ollama
 ollama
-deep_translator
-langdetect
 
