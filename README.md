@@ -35,22 +35,9 @@ This is a heart health assistant developed by **Metafied**. It provides **brief,
 The chatbot can provide responses in the following languages:
 - English (`en`)
 - Hindi (`hi`)
-- French (`fr`)
 - Spanish (`es`)
-- German (`de`)
-- Italian (`it`)
-- Portuguese (`pt`)
-- Chinese (`zh`)
-- Japanese (`ja`)
-- Korean (`ko`)
-- Russian (`ru`)
-- Arabic (`ar`)
-- Bengali (`bn`)
-- Gujarati (`gu`)
-- Marathi (`mr`)
-- Tamil (`ta`)
 - Telugu (`te`)
-- Urdu (`ur`)
+
 
 ## 📌 API Endpoints
 ### **Chat Endpoint**
