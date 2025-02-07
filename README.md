@@ -36,6 +36,7 @@ The chatbot can provide responses in the following languages:
 - Spanish (`es`)
 - Telugu (`te`)
 
+
 ## 📌 API Endpoints
 ### **Chat Endpoint**
 **Route:** `/chat`  
