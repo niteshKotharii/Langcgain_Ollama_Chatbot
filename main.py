@@ -20,9 +20,8 @@ Guidelines:
 - Support for multiple languages: Respond in the language specified by the user (English, Hindi, Spanish, Telugu).  
 
 Context: {context}  
-User: {question}  
+User ({language}): {question}  
 AI Response ({language} - Concise & Clear): 
-
 """
 
 # Initialize the Flask app
