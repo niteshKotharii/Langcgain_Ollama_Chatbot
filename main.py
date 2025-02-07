@@ -20,7 +20,7 @@ Guidelines:
 - Support for multiple languages: Respond in the language specified by the user (English, Hindi, Spanish, Telugu).  
 
 Context: {context}  
-User ({language}): {question}  
+User: {question}  
 AI Response ({language} - Concise & Clear): 
 
 """
@@ -48,7 +48,7 @@ context = ""
 # Enable CORS for the Flask app
 CORS(app)
 # Route to handle the chat interaction
-@app.route('/chat', methods=['GET'])  
+@app.route('/chat', methods=['POST'])  
 def chat():
     global context
 
