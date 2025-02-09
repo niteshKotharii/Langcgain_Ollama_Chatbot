@@ -6,9 +6,8 @@ This is a heart health assistant developed by **Metafied**. It provides **brief,
 - **Concise Responses** (2-3 sentences)  
 - **Heart Health Tips** on diet, exercise, and lifestyle  
 - **Emergency Advice** for critical symptoms like chest pain  
-- **AI-powered chatbot** using `LangChain`, `OllamaLLM`, and `Flask`  
-- **Multilingual Support** – Translates responses into multiple languages  
-- **Text-to-Speech (TTS) Support** – Converts responses into audio using `gTTS`  
+- **AI-powered chatbot** using `LangChain` & `OllamaLLM` 
+- **Multilingual Support** – Translates responses into multiple languages    
 
 ## 🛠️ Setup  
 1. Clone the repository:  
@@ -28,7 +27,6 @@ This is a heart health assistant developed by **Metafied**. It provides **brief,
 - Type your heart health queries in the chatbot.  
 - The chatbot provides responses in **English** by default.
 - You can specify a language preference (e.g., `hi` for Hindi, `fr` for French).
-- The chatbot also generates **audio responses** in the selected language.
 - Type **"exit"** to quit the conversation.  
 
 ## 📌 Supported Languages
@@ -42,7 +40,7 @@ The chatbot can provide responses in the following languages:
 ## 📌 API Endpoints
 ### **Chat Endpoint**
 **Route:** `/chat`  
-**Method:** `GET`  
+**Method:** `POST`  
 **Request Body (JSON):**
 ```json
 {
@@ -54,14 +52,9 @@ The chatbot can provide responses in the following languages:
 ```json
 {
     "text": "हृदय स्वास्थ्य के लिए हरी साग, पूरी अनाज, और मछली मछली मछली मछली मछली मछली मछली मछली",
-    "audio": "http://localhost:5000/response.mp3"
 }
 ```
 
-### **Audio File Endpoint**
-**Route:** `/<filename>`  
-**Method:** `GET`  
-**Description:** Serves the generated audio file in MP3 format.
 
 ## 📈 Example Usage
 ```bash

@@ -1,7 +1,6 @@
-Flask
-Flask-cors
 langchain
 langchain-ollama
 ollama
-gtts
+fastapi 
+uvicorn
 
