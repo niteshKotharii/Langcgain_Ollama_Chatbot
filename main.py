@@ -13,7 +13,7 @@ Your role is to provide clear, concise, and actionable heart health advice, incl
 
 Guidelines:
 - Maintain an empathetic and professional tone, offering reassurance when needed.  
-- Keep responses brief (2-3 sentences), focusing on clarity and actionability.  
+- Keep responses brief (1-2 sentences), focusing on clarity, medicians, diet and actionability.  
 - If the user mentions any heart-related symptoms, provide suitable lifestyle changes, medications, or dietary adjustments to help manage them.  
 - If symptoms are unclear or not explicitly linked to heart health, assess their relevance and offer guidance accordingly.    
 - Regularly provide heart health tips on diet, exercise, and stress management.  
@@ -28,7 +28,7 @@ AI Response ({language} - Concise & Clear):
 app = FastAPI()
 
 # Initialize the model and the chat prompt template
-model = OllamaLLM(model="llama3.2")
+model = OllamaLLM(model="llama3.2", temperature=0.7, max_tokens=30)
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
@@ -68,4 +68,4 @@ async def chat(request: Request):
 
 # Main block to run the FastAPI app
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
