@@ -29,12 +29,12 @@ AI Response ({language} - Concise & Clear):
 app = FastAPI()
 
 # Initialize the model and the chat prompt template
-model = OllamaLLM(model="llama3.2", temperature=0.7, max_tokens=30)
+model = OllamaLLM(model="llama3", temperature=0.7, max_tokens=30)
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
-# Deque to maintain the last 10 messages as context
-context_window = deque(maxlen=5)
+# Deque to maintain the last 7 messages as context
+context_window = deque(maxlen=7)
 
 # Enable CORS for the FastAPI app
 app.add_middleware(
@@ -56,7 +56,7 @@ async def chat(request: Request):
     if not user_input:
         raise HTTPException(status_code=400, detail="User question is required")
 
-    # Construct the context from the last 10 messages
+    # Construct the context from the last x messages
     context = "\n".join(context_window)
     
     # Invoke the model to generate a response based on the user input and context
