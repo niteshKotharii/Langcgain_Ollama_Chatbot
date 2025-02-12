@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn 
 import asyncio
+from collections import deque
 
 # Template for the model's response
 template = """
@@ -32,8 +33,8 @@ model = OllamaLLM(model="llama3.2", temperature=0.7, max_tokens=30)
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
-# Initialize the context variable to store the conversation history
-context = "" 
+# Deque to maintain the last 10 messages as context
+context_window = deque(maxlen=5)
 
 # Enable CORS for the FastAPI app
 app.add_middleware(
@@ -47,8 +48,6 @@ app.add_middleware(
 # Route to handle the chat interaction
 @app.post("/chat")
 async def chat(request: Request):
-    global context
-
     # Parse the input data
     data = await request.json()
     user_input = data.get('question', '').strip().lower()
@@ -57,15 +56,19 @@ async def chat(request: Request):
     if not user_input:
         raise HTTPException(status_code=400, detail="User question is required")
 
+    # Construct the context from the last 10 messages
+    context = "\n".join(context_window)
+    
     # Invoke the model to generate a response based on the user input and context
     result = await asyncio.to_thread(chain.invoke, {"context": context, "language": language, "question": user_input})
 
-    # Update the context while ensuring the language is always updated
-    context = f"Language: {language}\n{context}\nUser: {user_input}\nAI: {result}"
-
+    # Update the context window with the new interaction
+    context_window.append(f"User: {user_input}\nAI: {result}")
+    
     # Return the response text
     return JSONResponse(content={'text': result})
 
 # Main block to run the FastAPI app
 if __name__ == '__main__':
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=5000)
+
